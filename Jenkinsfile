@@ -2,7 +2,9 @@ pipeline {
 
     agent any
     
-
+    enviornment {
+       PASS = credentials('docker-registry-pass')
+    }
     stages {
 
         stage('Build') {
