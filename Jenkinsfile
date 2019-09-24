@@ -2,31 +2,33 @@ pipeline {
 
     agent any
     
-    enviornment {
-       PASS = credentials('docker-registry-pass')
+    environment {
+        PASS = credentials('registry-pass') 
     }
+
     stages {
 
         stage('Build') {
             steps {
                 sh '''
-                   ./jenkins/build/mvn.sh mvn -B -DskipTests clean package
-                   ./jenkins/build/build.sh
+                    ./jenkins/build/mvn.sh mvn -B -DskipTests clean package
+                    ./jenkins/build/build.sh
+
                 '''
             }
-        post {
+
+            post {
                 success {
                    archiveArtifacts artifacts: 'java-app/target/*.jar', fingerprint: true
                 }
-            }  
+            }
         }
 
         stage('Test') {
             steps {
-                sh '''
-                   ./jenkins/test/mvn.sh mvn test
-                '''
+                sh './jenkins/test/mvn.sh mvn test'
             }
+
             post {
                 always {
                     junit 'java-app/target/surefire-reports/*.xml'
@@ -39,8 +41,8 @@ pipeline {
                 sh './jenkins/push/push.sh'
             }
         }
-        stage('Deploy'){
 
+        stage('Deploy') {
             steps {
                 sh './jenkins/deploy/deploy.sh'
             }
